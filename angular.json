@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "ng-tailadmin": {
+    "digicoop-marketplace": {
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -13,7 +13,7 @@
         "build": {
           "builder": "@angular/build:application",
           "options": {
-            "outputPath": "dist/ng-tailadmin",
+            "outputPath": "dist/digicoop-marketplace",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
@@ -65,10 +65,10 @@
           "builder": "@angular/build:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "ng-tailadmin:build:production"
+              "buildTarget": "digicoop-marketplace:build:production"
             },
             "development": {
-              "buildTarget": "ng-tailadmin:build:development"
+              "buildTarget": "digicoop-marketplace:build:development"
             }
           },
           "defaultConfiguration": "development"
