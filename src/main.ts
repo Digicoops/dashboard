@@ -24,7 +24,7 @@ import { register as registerSwiperElements } from 'swiper/element/bundle';
 //   }
 
 //   return originalAddEventListener.call(this, type, listener, options);
-// };
+// }; nvm use 20.19.5
 
 registerSwiperElements();
 

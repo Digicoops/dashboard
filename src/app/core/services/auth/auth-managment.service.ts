@@ -44,6 +44,69 @@ export class AuthManagementService {
         return { success: false, error: 'Erreur inconnue' };
     }
 
+    /** RÉCUPÉRER L'EMAIL PAR TÉLÉPHONE (pour usage externe) */
+    async getEmailByPhone(phone: string): Promise<{ email: string | null; error?: string }> {
+        const { email, error } = await this.authService.getEmailByPhone(phone);
+
+        if (error) {
+            return { email: null, error: error.message };
+        }
+
+        return { email };
+    }
+
+    /** LOGIN WITH PHONE */
+    async loginWithPhone(phone: string, password: string): Promise<{ success: boolean; error?: string }> {
+        // 1. Récupérer l'email associé au téléphone
+        const { email, error: emailError } = await this.getEmailByPhone(phone);
+
+        if (emailError || !email) {
+            return { success: false, error: emailError || 'Utilisateur non trouvé' };
+        }
+
+        // 2. Connexion avec l'email récupéré
+        const loginData: LoginData = {
+            email: email,
+            password: password
+        };
+
+        return await this.login(loginData);
+    }
+
+
+    /** VÉRIFIER LA CONFIRMATION DU COMPTE */
+    async checkAccountConfirmation(): Promise<{
+        isConfirmed: boolean;
+        emailConfirmed: boolean;
+        error?: string
+    }> {
+        try {
+            const confirmationInfo = await this.authService.getConfirmationInfo();
+            return {
+                isConfirmed: confirmationInfo.confirmedAt !== null,
+                emailConfirmed: confirmationInfo.emailConfirmed
+            };
+        } catch (error) {
+            return {
+                isConfirmed: false,
+                emailConfirmed: false,
+                error: 'Erreur lors de la vérification'
+            };
+        }
+    }
+
+    /** RENVOYER L'EMAIL DE CONFIRMATION */
+    async resendConfirmationEmail(email: string): Promise<{ success: boolean; error?: string }> {
+        const { error } = await this.authService.resendConfirmationEmail(email);
+
+        if (error) {
+            return { success: false, error: error.message };
+        }
+
+        return { success: true };
+    }
+
+
     /** VÉRIFIER ET REFRESH LE TOKEN SI NÉCESSAIRE */
     async checkAndRefreshToken(): Promise<boolean> {
         const isExpired = await this.authService.isTokenExpired();

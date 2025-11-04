@@ -30,23 +30,29 @@ export class PhoneInputComponent {
     if (this.countries.length > 0) {
       this.selectedCountry = this.countries[0].code;
       this.countryCodes = this.countries.reduce(
-        (acc, { code, label }) => ({ ...acc, [code]: label }),
-        {}
+          (acc, { code, label }) => ({ ...acc, [code]: label }),
+          {}
       );
-      this.phoneNumber = this.countryCodes[this.selectedCountry] || '';
     }
   }
 
   handleCountryChange(event: Event) {
     const newCountry = (event.target as HTMLSelectElement).value;
     this.selectedCountry = newCountry;
-    this.phoneNumber = this.countryCodes[newCountry] || '';
-    this.phoneChange.emit(this.phoneNumber);
+    this.emitFullPhoneNumber();
   }
 
-  handlePhoneNumberChange(event: Event) {
+  handlePhoneInputChange(event: Event) {
     const newPhoneNumber = (event.target as HTMLInputElement).value;
     this.phoneNumber = newPhoneNumber;
-    this.phoneChange.emit(newPhoneNumber);
+    this.emitFullPhoneNumber();
+  }
+
+  private emitFullPhoneNumber() {
+    const countryCode = this.countryCodes[this.selectedCountry] || '';
+    const fullPhoneNumber = countryCode + this.phoneNumber;
+
+    console.log('PhoneInput - Emission du numéro:', fullPhoneNumber);
+    this.phoneChange.emit(fullPhoneNumber); // Émet avec le +
   }
 }

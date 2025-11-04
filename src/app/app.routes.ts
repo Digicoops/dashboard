@@ -25,10 +25,11 @@ import {BillingInvoiceTableComponent} from "./pages/billing/billing-invoice-tabl
 import {OrderHistoryComponent} from "./pages/transactions-orders/order-history/order-history.component";
 import {TransactionHeaderComponent} from "./pages/transactions-orders/transaction-header/transaction-header.component";
 import {OrderDetailsTableComponent} from "./pages/transactions-orders/order-details-table/order-details-table.component";
+import {AuthGuard} from "./core/guard/auth.guard";
 
 export const routes: Routes = [
   {
-    path:'',
+    path:'dashboard',
     component:AppLayoutComponent,
     children:[
       {
@@ -135,16 +136,24 @@ export const routes: Routes = [
         component:VideosComponent,
         title:'Angular Videos Dashboard | TailAdmin - Angular Admin Dashboard Template'
       },
-    ]
+    ],
+    canActivate: [AuthGuard],
   },
   // auth pages
+
   {
-    path:'signin',
+    path:'login',
+    component:SignInComponent,
+    title:'Angular Sign In Dashboard | TailAdmin - Angular Admin Dashboard Template',
+  },
+
+  {
+    path:'',
     component:SignInComponent,
     title:'Angular Sign In Dashboard | TailAdmin - Angular Admin Dashboard Template'
   },
   {
-    path:'signup',
+    path:'register',
     component:SignUpComponent,
     title:'Angular Sign Up Dashboard | TailAdmin - Angular Admin Dashboard Template'
   },

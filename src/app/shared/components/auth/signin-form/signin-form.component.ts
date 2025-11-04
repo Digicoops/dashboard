@@ -1,14 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import { LabelComponent } from '../../form/label/label.component';
 import { CheckboxComponent } from '../../form/input/checkbox.component';
 import { ButtonComponent } from '../../ui/button/button.component';
 import { InputFieldComponent } from '../../form/input/input-field.component';
-import {Router, RouterModule} from '@angular/router';
+import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import {PhoneInputComponent} from "../../form/group-input/phone-input/phone-input.component";
-import {AuthManagementService} from "../../../../core/services/auth/auth-managment.service";
-import {LoginData} from "../../../../core/services/auth/auth.service";
+import { PhoneInputComponent } from "../../form/group-input/phone-input/phone-input.component";
+import { AuthManagementService } from "../../../../core/services/auth/auth-managment.service";
 
 @Component({
   selector: 'app-signin-form',
@@ -25,11 +24,10 @@ import {LoginData} from "../../../../core/services/auth/auth.service";
   templateUrl: './signin-form.component.html',
   styles: ``
 })
-export class SigninFormComponent {
+export class SigninFormComponent implements OnInit {
   showPassword = false;
   isChecked = false;
 
-  email = '';
   password = '';
   phone = '';
   isLoading = false;
@@ -53,13 +51,81 @@ export class SigninFormComponent {
     this.phone = phoneNumber;
   }
 
+  /** Nettoyer et valider le numéro de téléphone */
+  /** Nettoyer et valider le numéro de téléphone */
+  private validateAndCleanPhone(phone: string): { isValid: boolean; cleanPhone: string; error?: string } {
+    // Supprimer tous les + et les espaces
+    let cleanPhone = phone.replace(/\+/g, '').replace(/\s+/g, '');
+
+    console.log('Phone après suppression + et espaces:', cleanPhone);
+
+    // Vérifier et supprimer les doublons de 221
+    if (cleanPhone.startsWith('221221')) {
+      cleanPhone = cleanPhone.substring(3); // Supprimer un seul 221
+      console.log('Phone après suppression doublon 221:', cleanPhone);
+    }
+
+    // Vérifier si c'est un numéro Sénégalais
+    if (!cleanPhone.startsWith('221')) {
+      return {
+        isValid: false,
+        cleanPhone: '',
+        error: 'Le numéro doit être Sénégalais (+221)'
+      };
+    }
+
+    // Supprimer le préfixe 221 pour avoir juste les chiffres
+    const numberWithoutPrefix = cleanPhone.substring(3);
+    console.log('Numéro sans préfixe 221:', numberWithoutPrefix);
+
+    // Vérifier la longueur (9 chiffres après 221)
+    if (numberWithoutPrefix.length !== 9) {
+      return {
+        isValid: false,
+        cleanPhone: '',
+        error: 'Le numéro doit avoir 9 chiffres après le +221'
+      };
+    }
+
+    // Vérifier le format Sénégalais (76, 77, 78, 70)
+    const validPrefixes = ['76', '77', '78', '70'];
+    const prefix = numberWithoutPrefix.substring(0, 2);
+
+    if (!validPrefixes.includes(prefix)) {
+      return {
+        isValid: false,
+        cleanPhone: '',
+        error: 'Numéro Sénégalais invalide. Doit commencer par 76, 77, 78 ou 70'
+      };
+    }
+
+    // Vérifier que c'est bien un nombre
+    if (!/^\d+$/.test(numberWithoutPrefix)) {
+      return {
+        isValid: false,
+        cleanPhone: '',
+        error: 'Le numéro ne doit contenir que des chiffres'
+      };
+    }
+
+    return {
+      isValid: true,
+      cleanPhone: numberWithoutPrefix // Retourner sans le 221, juste 77...
+    };
+  }
+
+
+
+
   async onSignIn() {
+    console.log("onSignIn appelé !");
+
     // Reset error message
     this.errorMessage = '';
 
-    // Validation
-    if (!this.email && !this.phone) {
-      this.errorMessage = 'Veuillez entrer un email ou un numéro de téléphone';
+    // Validation de base
+    if (!this.phone) {
+      this.errorMessage = 'Veuillez entrer un numéro de téléphone';
       return;
     }
 
@@ -68,26 +134,27 @@ export class SigninFormComponent {
       return;
     }
 
+    // Validation et nettoyage du téléphone
+    const phoneValidation = this.validateAndCleanPhone(this.phone);
+    if (!phoneValidation.isValid) {
+      this.errorMessage = phoneValidation.error || 'Numéro de téléphone invalide';
+      return;
+    }
+
     this.isLoading = true;
 
-    try {
-      let result: { success: boolean; error?: string };
+    console.log('Tentative de connexion avec:', {
+      phoneOriginal: this.phone,
+      phoneCleaned: phoneValidation.cleanPhone,
+      password: this.password
+    });
 
-      if (this.phone) {
-        // Login avec téléphone
-        result = await this.authManagement.login({email: this.phone, password:  this.password});
-      } else {
-        // Login avec email
-        const loginData: LoginData = {
-          email: this.email,
-          password: this.password
-        };
-        result = await this.authManagement.login(loginData);
-      }
+    try {
+      // Login avec téléphone nettoyé (sans le 221)
+      const result = await this.authManagement.loginWithPhone(phoneValidation.cleanPhone, this.password);
 
       if (result.success) {
         console.log('Connexion réussie!');
-        // Redirection vers la page d'accueil ou dashboard
         this.router.navigate(['/dashboard']);
       } else {
         this.errorMessage = result.error || 'Erreur de connexion';
@@ -100,9 +167,17 @@ export class SigninFormComponent {
     }
   }
 
-  // Méthode pour connexion Google (si implémentée plus tard)
+  // Méthode pour tester le clic directement
+  testSubmit() {
+    console.log("testSubmit appelé !");
+    this.onSignIn();
+  }
+
   onGoogleSignIn() {
     console.log('Google sign in clicked');
-    // Implémentation OAuth Google à ajouter
+  }
+
+  ngOnInit(): void {
+    this.authManagement.logout()
   }
 }
