@@ -38,7 +38,7 @@ export class SignupFormComponent implements OnInit {
   phone = '221776606106';
 
   @Input() options: Option[] = [
-    { value: 'personal', label: 'Personnel' },
+    { value: 'personal', label: 'Particulier' },
     { value: 'cooperative', label: 'Cooperative' },
   ];
   @Input() placeholder: string = 'Select an option';
