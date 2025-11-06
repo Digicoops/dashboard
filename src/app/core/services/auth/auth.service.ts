@@ -107,6 +107,8 @@ export class AuthService {
                     phone: signUpData.phone
                 },
                 emailRedirectTo: `${window.location.origin}/login`
+
+
             }
         });
 
