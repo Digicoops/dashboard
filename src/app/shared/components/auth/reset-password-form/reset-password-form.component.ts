@@ -10,7 +10,7 @@ import { PhoneInputComponent } from "../../form/group-input/phone-input/phone-in
 import { AuthManagementService } from "../../../../core/services/auth/auth-managment.service";
 
 @Component({
-  selector: 'app-signin-form',
+  selector: 'app-reset-password',
   imports: [
     CommonModule,
     LabelComponent,
@@ -21,10 +21,10 @@ import { AuthManagementService } from "../../../../core/services/auth/auth-manag
     FormsModule,
     PhoneInputComponent,
   ],
-  templateUrl: './signin-form.component.html',
+  templateUrl: './reset-password-form.component.html',
   styles: ``
 })
-export class SigninFormComponent implements OnInit {
+export class ResetPasswordFormComponent implements OnInit {
   showPassword = false;
   isChecked = false;
 
@@ -155,7 +155,7 @@ export class SigninFormComponent implements OnInit {
 
       if (result.success) {
         console.log('Connexion réussie!');
-        this.router.navigate(['/coming-soon']);
+        this.router.navigate(['/dashboard']);
       } else {
         this.errorMessage = result.error || 'Erreur de connexion';
       }
