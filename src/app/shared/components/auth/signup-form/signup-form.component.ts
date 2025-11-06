@@ -8,6 +8,7 @@ import { FormsModule } from '@angular/forms';
 import { Option, SelectComponent } from "../../form/select/select.component";
 import { PhoneInputComponent } from "../../form/group-input/phone-input/phone-input.component";
 import {AuthManagementService} from "../../../../core/services/auth/auth-managment.service";
+import {ButtonComponent} from "../../ui/button/button.component";
 
 @Component({
   selector: 'app-signup-form',
@@ -20,76 +21,132 @@ import {AuthManagementService} from "../../../../core/services/auth/auth-managme
     FormsModule,
     SelectComponent,
     PhoneInputComponent,
+    ButtonComponent,
   ],
   templateUrl: './signup-form.component.html',
   styles: ``
 })
 export class SignupFormComponent implements OnInit {
-
   showPassword = false;
   isChecked = false;
+  isLoading = false;
+  errorMessage = '';
+  successMessage = '';
 
-  // Champs pré-remplis
-  fname = 'John';
-  lname = 'Doe';
-  shopName = 'Ma Boutique';
-  email = 'yofabo5628@hh7f.com';
-  password = 'yofabo5628@hh7f.com';
-  phone = '221776606106';
+  // Champs du formulaire
+  fname = '';
+  lname = '';
+  shopName = '';
+  email = '';
+  password = '';
+  phone = '';
 
   @Input() options: Option[] = [
     { value: 'personal', label: 'Particulier' },
     { value: 'cooperative', label: 'Cooperative' },
   ];
-  @Input() placeholder: string = 'Select an option';
-  @Input() className: string = '';
-  @Input() defaultValue: string = '';
-  selectedValue: string = 'personal'; // Pré-sélectionné
 
-  @Output() valueChange = new EventEmitter<string>();
+  selectedValue: string = 'personal';
+  countries = [{ code: 'SN', label: '+221' }];
 
-  countries = [
-    { code: 'SN', label: '+221' },
-  ];
+  constructor(
+      private authManagement: AuthManagementService,
+      private router: Router,
+  ) {}
 
-  constructor(private authManagement: AuthManagementService, private router: Router) {}
-
-  ngOnInit() {
-    if (!this.selectedValue && this.defaultValue) {
-      this.selectedValue = this.defaultValue;
-    }
-  }
+  ngOnInit() {}
 
   handleSelectChange(value: string) {
-    console.log('Selected value:', value);
     this.selectedValue = value;
   }
 
   togglePasswordVisibility() {
-    this.showPassword = !this.showPassword;
+    if (!this.isLoading) {
+      this.showPassword = !this.showPassword;
+    }
   }
 
   handlePhoneNumberChange(phoneNumber: string) {
-    console.log('Updated phone number:', phoneNumber);
     this.phone = phoneNumber;
   }
+
+  // Validation du formulaire
+  isFormValid(): boolean {
+    return !!this.fname?.trim() &&
+        !!this.lname?.trim() &&
+        !!this.email?.trim() &&
+        !!this.shopName?.trim() &&
+        !!this.password &&
+        this.password.length >= 8 &&
+        this.isChecked;
+  }
+
   async onSubmit() {
+    if (!this.isFormValid()) {
+      this.errorMessage = 'Veuillez remplir tous les champs obligatoires et accepter les conditions.';
+      return;
+    }
+
+    this.isLoading = true;
+    this.errorMessage = '';
+    this.successMessage = '';
+
     const signUpData = {
-      first_name: this.fname,
-      last_name: this.lname,
-      shop_name: this.shopName,
+      first_name: this.fname.trim(),
+      last_name: this.lname.trim(),
+      shop_name: this.shopName.trim(),
       profile: this.selectedValue,
-      email: this.email,
+      email: this.email.trim(),
       password: this.password,
-      phone: this.phone
+      phone: this.phone || ''
     };
 
-    const result = await this.authManagement.register(signUpData);
+    try {
+      const result = await this.authManagement.register(signUpData);
 
-    if (result.success) {
-      this.router.navigate(['/login']);
-    } else {
-      console.error('Erreur inscription:', result.error);
+      if (result.success) {
+        this.successMessage = 'Compte créé avec succès ! Redirection...';
+
+        // Rediriger après un délai
+        setTimeout(() => {
+          this.router.navigate(['/login'], {
+            queryParams: { email: this.email }
+          });
+        }, 2000);
+
+      } else {
+        this.errorMessage = this.getErrorMessage(result.error);
+      }
+    } catch (error) {
+      this.errorMessage = 'Une erreur inattendue est survenue.';
+      console.error('Erreur inscription:', error);
+    } finally {
+      this.isLoading = false;
     }
+  }
+
+  async signInWithGoogle() {
+    this.isLoading = true;
+    this.errorMessage = '';
+
+    // Implémentez la connexion Google ici
+    // await this.authService.signInWithGoogle();
+
+    setTimeout(() => {
+      this.isLoading = false;
+      this.errorMessage = 'Connexion Google non implémentée pour le moment.';
+    }, 1000);
+  }
+
+  private getErrorMessage(error: string | undefined): string {
+    const errorMap: { [key: string]: string } = {
+      'User already registered': 'Un compte existe déjà avec cet email.',
+      'Invalid email': 'Adresse email invalide.',
+      'Weak password': 'Le mot de passe est trop faible.',
+      'Email not confirmed': 'Email non confirmé.',
+      'Network error': 'Erreur de connexion. Vérifiez votre internet.'
+    };
+
+    return errorMap[error || ''] || error || 'Erreur lors de l\'inscription.';
   }
 }

@@ -1,5 +1,5 @@
 <div class="flex flex-col justify-center flex-1 w-full max-w-md mx-auto">
-    <div>
+    <div class="w-full ">
         <div class="mb-5 sm:mb-8">
             <h1 class="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md">
                 Se connecter
@@ -126,9 +126,8 @@
                 <span *ngIf="!isLoading">Se connecter</span>
             </app-button>
         </form>
-
-        <div class="mt-5">
-            <p class="text-sm font-normal text-center text-gray-700 dark:text-gray-400 sm:text-start">
+        <div class="mt-5 w-full text-center">
+            <p class="text-sm font-normal text-gray-700 dark:text-gray-400">
                 Vous n'avez pas de compte?
                 <a
                         routerLink="/register"

@@ -92,6 +92,7 @@ export class AuthService {
     }
 
     /** SIGN UP / INSCRIPTION */
+    /** SIGN UP / INSCRIPTION avec URL de redirection */
     async signUp(signUpData: SignUpData): Promise<{ user: User | null; error: AuthError | null }> {
         const { data: authData, error: authError } = await this.supabase.auth.signUp({
             email: signUpData.email,
@@ -102,9 +103,10 @@ export class AuthService {
                     first_name: signUpData.first_name,
                     last_name: signUpData.last_name,
                     shop_name: signUpData.shop_name,
-                    profile: signUpData.profile, // Maintenant c'est une string
+                    profile: signUpData.profile,
                     phone: signUpData.phone
-                }
+                },
+                emailRedirectTo: `${window.location.origin}/login`
             }
         });
 
@@ -120,7 +122,7 @@ export class AuthService {
                     first_name: signUpData.first_name,
                     last_name: signUpData.last_name,
                     shop_name: signUpData.shop_name,
-                    profile: signUpData.profile, // String ici aussi
+                    profile: signUpData.profile,
                     email: signUpData.email,
                     phone: signUpData.phone,
                     created_at: new Date().toISOString()
@@ -135,7 +137,6 @@ export class AuthService {
 
         return { user: authData.user, error: null };
     }
-
 
     /** SIGN IN / CONNEXION avec gestion du token */
     async signIn(loginData: LoginData): Promise<{ session: Session | null; error: AuthError | null }> {
