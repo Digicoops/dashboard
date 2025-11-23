@@ -13,7 +13,7 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
     <input
       [id]="id"
       type="checkbox"
-      class="w-5 h-5 appearance-none cursor-pointer dark:border-gray-700 border border-gray-300 checked:border-transparent rounded-md checked:bg-brand-500 disabled:opacity-60"
+      class="w-5 h-5 appearance-none cursor-pointer dark:border-gray-700 border border-gray-300 checked:border-transparent rounded-md checked:bg-success-500 disabled:opacity-60"
       [ngClass]="className"
       [checked]="checked"
       (change)="onChange($event)"

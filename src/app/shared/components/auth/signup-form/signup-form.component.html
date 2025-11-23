@@ -1,5 +1,12 @@
-<div class="flex flex-col justify-center flex-1 w-full max-w-md mx-auto sm:pt-10">
+<div class="flex flex-col justify-center flex-1 w-full max-w-xl mx-auto sm:pt-10">
     <div>
+        <!-- Logo avec animation subtle -->
+        <a routerLink="/" class="block flex item-center justify-start w-full mb-2 p-0 transform transition-transform duration-300 hover:scale-105">
+            <img width="50" height="50" src="/images/logo/digicoop-icon.png"
+                 alt="Logo"
+                 class="drop-shadow-lg"/>
+        </a>
+
         <div class="mb-5 sm:mb-8">
             <h1 class="mb-2 font-semibold text-gray-800 text-title-sm dark:text-white/90 sm:text-title-md">
                 Inscription
@@ -109,7 +116,7 @@
                             name="email"
                             placeholder="Entrez votre email"
                             [disabled]="isLoading" />
-                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Adresse email de l'administrateur</p>
+                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Adresse email professionel</p>
                 </div>
 
                 <!-- Nom boutique -->
@@ -196,9 +203,9 @@
                             [disabled]="isLoading" />
                     <p class="inline-block font-normal text-gray-500 dark:text-gray-400 text-sm">
                         En créant un compte, vous acceptez les
-                        <a href="#" class="text-brand-500 hover:text-brand-600 dark:text-brand-400">Conditions Générales d'Utilisation</a>,
+                        <a href="#" class="text-success-500 hover:text-success-600 dark:text-success-400">Conditions Générales d'Utilisation</a>,
                         et notre
-                        <a href="#" class="text-brand-500 hover:text-brand-600 dark:text-brand-400">Politique de Confidentialité</a>
+                        <a href="#" class="text-success-500 hover:text-success-600 dark:text-success-400">Politique de Confidentialité</a>
                     </p>
                 </div>
 
@@ -228,7 +235,7 @@
         <div class="mt-5 text-center">
             <p class="text-sm font-normal text-gray-700 dark:text-gray-400">
                 Vous avez déjà un compte ?
-                <a routerLink="/login" class="text-brand-500 hover:text-brand-600 dark:text-brand-400 font-medium">
+                <a routerLink="/login" class="text-success-500 hover:text-success-600 dark:text-success-400 font-medium">
                     Se connecter
                 </a>
             </p>

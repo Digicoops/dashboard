@@ -1,31 +1,99 @@
 <div class="relative p-6 bg-white z-1 dark:bg-gray-900 sm:p-0">
-  <div
-    class="relative flex flex-col justify-center w-full h-screen lg:flex-row dark:bg-gray-900 sm:p-0"
-  >
-    <ng-content></ng-content>
-    <div
-      class="items-center hidden w-full h-full lg:w-1/2 bg-[#4CAF50] dark:bg-white/5 lg:grid relative"
-    >
-      <div class="flex items-center justify-center z-1">
-        <!-- ===== Common Grid Shape Start ===== -->
-        <app-grid-shape />
-        <div class="flex flex-col items-center max-w-xs">
-          <a routerLink="/" class="block mb-4">
-            <img
-              width="231"
-              height="48"
-              src="/images/logo/auth-logo.png"
-              alt="Logo"
-            />
-          </a>
-          <p class="text-center text-white dark:text-white/60">
-              DIGICOOP, ensemble pour transformer l’agriculture de demain.
-          </p>
+  <div class="relative flex flex-col justify-center w-full h-screen overflow-y-hidden lg:flex-row dark:bg-gray-900 sm:p-0">
+
+    <div class="items-center hidden w-full h-full lg:w-1/2 bg-[#4CAF50] dark:bg-white/5 lg:grid relative bg-opacity-50"
+         style="background: url('/images/shape/auth-bg.jpg')no-repeat center center; background-size: cover">
+
+      <!-- Overlay avec dégradé pour améliorer la lisibilité -->
+      <div class="absolute inset-0 bg-gradient-to-br from-green-900/70 to-green-600/40 mix-blend-multiply"></div>
+
+      <div class="flex items-center justify-center z-10 relative h-full">
+        <div class="h-full mb-14 flex flex-col items-center justify-end max-w-md text-center space-y-4">
+
+
+      <div class="backdrop-blur-sm p-4 rounded-xl  ">
+        <!-- Logo avec animation subtle -->
+        <a routerLink="/" class="block flex item-center justify-center w-full mb-2 transform transition-transform duration-300 hover:scale-105">
+          <img width="240" height="40" src="/images/logo/digicoop-logo.png"
+               alt="Logo"
+               class="drop-shadow-lg"/>
+        </a>
+
+        <!-- Texte principal stylisé -->
+        <h2 class="text-2xl font-bold text-white my-2 font-serif tracking-wide">
+            <span id="typewriter"></span>
+        </h2>
+
+        <!-- Slogan existant amélioré -->
+        <p class="text-base text-white/90 leading-relaxed font-light  ">
+          Reprenez le contrôle de vos échanges : connectez-vous pour publier vos produits, trouver des acheteurs et développer votre activité.
+        </p>
+      </div>
+
+          <!-- Séparateur décoratif -->
+          <div class="w-16 h-1 bg-white/60 rounded-full my-2"></div>
+
+
+          <!-- Badge ou indicateur visuel -->
+          <div class="mt-6 px-4 py-2 bg-white/20 backdrop-blur-sm rounded-full shadow-md">
+<!--            <span class="text-white text-sm font-medium">♻️ Innovation et coopération au service des agriculteurs</span>-->
+            <blockquote class="text-white text-sm  italic">
+              ♻️ Innovation et coopération au service des agriculteurs.
+            </blockquote>
+          </div>
         </div>
       </div>
+
+      <!-- Élément décoratif en bas -->
+<!--      <div class="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-10">-->
+<!--        <div class="flex space-x-2">-->
+<!--          <div class="w-2 h-2 bg-white/60 rounded-full animate-pulse"></div>-->
+<!--          <div class="w-2 h-2 bg-white/60 rounded-full animate-pulse" style="animation-delay: 0.2s"></div>-->
+<!--          <div class="w-2 h-2 bg-white/60 rounded-full animate-pulse" style="animation-delay: 0.4s"></div>-->
+<!--        </div>-->
+<!--      </div>-->
     </div>
-    <div class="fixed z-50 hidden bottom-6 right-6 sm:block">
-      <app-theme-toggle-two />
-    </div>
+
+    <ng-content></ng-content>
+
   </div>
 </div>
+
+
+
+
+
+
+<!--<div class="relative p-6 bg-white z-1 dark:bg-gray-900 sm:p-0">-->
+<!--  <div class="relative flex flex-col justify-center w-full h-screen overflow-y-hidden lg:flex-row dark:bg-gray-900 sm:p-0">-->
+<!--    <ng-content></ng-content>-->
+
+
+<!--    <div class="items-center hidden w-full h-full lg:w-1/2 bg-[#4CAF50]  dark:bg-white/5 lg:grid relative bg-opacity-50" style="background: url('/images/shape/auth-bg.jpg')no-repeat center center; background-size: cover">-->
+
+<!--      <div class="flex items-center justify-center z-1">-->
+<!--        &lt;!&ndash;        <app-grid-shape />&ndash;&gt;-->
+
+<!--        <div class="flex flex-col items-center max-w-xs">-->
+<!--          <a routerLink="/" class="block mb-4">-->
+<!--            <img-->
+<!--                    width="231"-->
+<!--                    height="48"-->
+<!--                    src="/images/logo/auth-logo.png"-->
+<!--                    alt="Logo"-->
+<!--            />-->
+<!--          </a>-->
+<!--          <p class="text-center text-white dark:text-white/60">-->
+<!--            DIGICOOP, ensemble pour transformer l’agriculture de demain.-->
+<!--          </p>-->
+<!--        </div>-->
+<!--      </div>-->
+
+<!--    </div>-->
+
+<!--    &lt;!&ndash;    &ndash;&gt;-->
+<!--    &lt;!&ndash;    <div class="fixed z-50 hidden bottom-6 right-6 sm:block">&ndash;&gt;-->
+<!--    &lt;!&ndash;      <app-theme-toggle-two />&ndash;&gt;-->
+<!--    &lt;!&ndash;    </div>&ndash;&gt;-->
+<!--  </div>-->
+<!--</div>-->
