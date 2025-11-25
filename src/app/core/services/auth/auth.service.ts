@@ -401,8 +401,9 @@ export class AuthService {
         const { user } = await this.getCurrentUser();
         return !!user;
     }
+// Dans AuthService, ajoutez ces méthodes :
 
-    // Ajouter cette méthode dans AuthService
+    /** RÉINITIALISER LE MOT DE PASSE PAR EMAIL */
     async resetPassword(email: string): Promise<{ error: AuthError | null }> {
         const { error } = await this.supabase.auth.resetPasswordForEmail(email, {
             redirectTo: `${window.location.origin}/update-password`
@@ -410,4 +411,21 @@ export class AuthService {
 
         return { error };
     }
+
+    /** METTRE À JOUR LE MOT DE PASSE (après le lien de réinitialisation) */
+    async updatePassword(newPassword: string): Promise<{ user: User | null; error: AuthError | null }> {
+        const { data, error } = await this.supabase.auth.updateUser({
+            password: newPassword
+        });
+
+        return { user: data.user, error };
+    }
+
+    /** VÉRIFIER SI LA SESSION EST EN MODE RÉCUPÉRATION */
+    isRecoverySession(): boolean {
+        // Vérifie si l'utilisateur est arrivé via un lien de récupération
+        return window.location.hash.includes('type=recovery');
+    }
+
+
 }

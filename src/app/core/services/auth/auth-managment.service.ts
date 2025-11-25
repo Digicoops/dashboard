@@ -184,7 +184,9 @@ export class AuthManagementService {
         return metadata;
     }
 
-    // Ajouter cette méthode dans AuthManagementService
+    // Dans AuthManagementService, ajoutez :
+
+    /** RÉINITIALISER LE MOT DE PASSE */
     async resetPassword(email: string): Promise<{ success: boolean; error?: string }> {
         try {
             const { error } = await this.authService.resetPassword(email);
@@ -200,4 +202,32 @@ export class AuthManagementService {
             return { success: false, error: 'Erreur lors de la réinitialisation' };
         }
     }
+
+    /** METTRE À JOUR LE MOT DE PASSE */
+    async updatePassword(newPassword: string): Promise<{ success: boolean; error?: string }> {
+        try {
+            const { user, error } = await this.authService.updatePassword(newPassword);
+
+            if (error) {
+                console.error('Erreur update password:', error.message);
+                return { success: false, error: error.message };
+            }
+
+            if (user) {
+                console.log('Mot de passe mis à jour avec succès');
+                return { success: true };
+            }
+
+            return { success: false, error: 'Erreur inconnue' };
+        } catch (error) {
+            console.error('Erreur update password:', error);
+            return { success: false, error: 'Erreur lors de la mise à jour du mot de passe' };
+        }
+    }
+
+    /** VÉRIFIER LA SESSION DE RÉCUPÉRATION */
+    isRecoverySession(): boolean {
+        return this.authService.isRecoverySession();
+    }
+
 }

@@ -34,6 +34,7 @@ import {EditProductComponent} from "./pages/edit-product/edit-product.component"
 import {SupportComponent} from "./pages/support/support.component";
 import {cooperativeGuard} from "./core/guard/cooperative.guard";
 import {ResetPasswordComponent} from "./pages/auth-pages/reset-password/reset-password.component";
+import {ChangePasswordComponent} from "./pages/auth-pages/change-password/change-password.component";
 
 export const routes: Routes = [
   {
@@ -195,6 +196,11 @@ export const routes: Routes = [
     path:'register',
     component:SignUpComponent,
     title:'Angular Sign Up Dashboard | Digicoop- Angular Admin Dashboard Template'
+  },
+  {
+    path:'update-password',
+    component:ChangePasswordComponent,
+    title:'Angular Sign Up Dashboard | Digicoop - Angular Admin Dashboard Template'
   },
   {
     path:'coming-soon',

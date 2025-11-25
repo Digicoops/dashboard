@@ -10,7 +10,7 @@ import { PhoneInputComponent } from "../../form/group-input/phone-input/phone-in
 import { AuthManagementService } from "../../../../core/services/auth/auth-managment.service";
 
 @Component({
-  selector: 'app-reset-password',
+  selector: 'app-reset-password-form',
   imports: [
     CommonModule,
     LabelComponent,
@@ -66,8 +66,8 @@ export class ResetPasswordFormComponent implements OnInit {
 
         // Redirection après délai
         setTimeout(() => {
-          this.router.navigate(['/login']);
-        }, 3000);
+          this.router.navigate(['/send-link-password']);
+        }, 1000);
       } else {
         this.errorMessage = result.error || 'Erreur lors de l\'envoi de l\'email de réinitialisation';
       }
