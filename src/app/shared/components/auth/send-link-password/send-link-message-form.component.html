@@ -1,0 +1,94 @@
+<div class="flex flex-col justify-center flex-1 w-full max-w-xl mx-auto sm:pt-10">
+<div >
+    <!-- Logo avec animation subtle -->
+    <div>
+        <a routerLink="/" class="flex item-center justify-start w-fit mb-4 p-0 transform transition-transform duration-300 hover:scale-105">
+            <img width="50" height="50" src="/images/logo/digicoop-icon.png"
+                 alt="Logo"
+                 class="drop-shadow-lg"/>
+        </a>
+    </div>
+
+        <!-- Carte principale -->
+        <div class="bg-white  text-center p-8">
+
+            <!-- Icône envelope -->
+            <div class="flex justify-center mb-6">
+                <div class="w-16 h-16 bg-white border  dark:bg-success-900/30 rounded-full flex items-center justify-center">
+                    <svg *ngIf="messageConfig.icon === 'mail'" class="w-8 h-8 text-success-600 dark:text-success-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                    </svg>
+                    <svg *ngIf="messageConfig.icon === 'refresh'" class="w-8 h-8 text-success-600 dark:text-success-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Titre -->
+            <h1 class="mb-4 font-semibold text-gray-800 text-title-sm dark:text-white/90">
+                {{ messageConfig.title }}
+            </h1>
+
+            <!-- Message -->
+            <p class="mb-8 text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                {{ messageConfig.message }}
+            </p>
+
+            <!-- Bouton principal -->
+            <button
+                    (click)="onPrimaryAction()"
+                    [disabled]="isLoading"
+                    class="w-full py-3 px-4 bg-success-600 hover:bg-success-700 disabled:bg-success-400 text-white font-medium rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-success-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800"
+            >
+                <span *ngIf="isLoading" class="flex items-center justify-center gap-2">
+                    <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                    </svg>
+                    Envoi en cours...
+                </span>
+                <span *ngIf="!isLoading">
+                    {{ messageConfig.buttonText }}
+                </span>
+            </button>
+
+            <!-- Actions secondaires -->
+            <div class="mt-6 flex flex-col gap-3">
+                <!-- Pour reset-password et account-created -->
+                <button
+                        *ngIf="messageType === 'reset-password' || messageType === 'account-created'"
+                        (click)="goBack()"
+                        class="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
+                >
+                    Retour à la connexion
+                </button>
+
+                <!-- Pour account-not-activated -->
+                <button
+                        *ngIf="messageType === 'account-not-activated'"
+                        (click)="goHome()"
+                        class="text-sm text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors"
+                >
+                    Retour à l'accueil
+                </button>
+
+                <!-- Lien support pour tous les types -->
+                <button
+                        (click)="contactSupport()"
+                        class="text-sm text-success-600 dark:text-success-400 hover:text-success-800 dark:hover:text-success-300 transition-colors"
+                >
+                    Contacter le support
+                </button>
+            </div>
+        </div>
+
+        <!-- Message supplémentaire -->
+        <div class="mt-6 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg">
+            <p class="text-xs text-gray-500 dark:text-gray-400 text-center">
+                💡 <strong>Astuce</strong> : Vérifiez également vos courriers indésirables (spam)
+            </p>
+        </div>
+    </div>
+</div>

@@ -8,6 +8,7 @@ import { Router, RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { PhoneInputComponent } from "../../form/group-input/phone-input/phone-input.component";
 import { AuthManagementService } from "../../../../core/services/auth/auth-managment.service";
+import {AuthService} from "../../../../core/services/auth/auth.service";
 
 @Component({
   selector: 'app-change-password-form',
@@ -23,7 +24,7 @@ import { AuthManagementService } from "../../../../core/services/auth/auth-manag
   ],
   templateUrl: './change-password-form.component.html',
   styles: ``,
-
+  standalone: true
 })
 export class ChangePasswordFormComponent implements OnInit {
   showNewPassword = false;
@@ -31,6 +32,7 @@ export class ChangePasswordFormComponent implements OnInit {
   isLoading = false;
   errorMessage = '';
   successMessage = '';
+  isLinkExpired = false;
 
   // Champs du formulaire
   newPassword = '';
@@ -38,15 +40,64 @@ export class ChangePasswordFormComponent implements OnInit {
 
   constructor(
       private authManagement: AuthManagementService,
+      private authService: AuthService,
       private router: Router
   ) {}
 
-  ngOnInit(): void {
-    // Vérifier si l'utilisateur est arrivé via un lien de récupération
-    if (!this.authManagement.isRecoverySession()) {
-      this.router.navigate(['/login']);
+  async ngOnInit(): Promise<void> {
+    console.log('ChangePasswordComponent initialized');
+
+    // CORRECTION : Utiliser la nouvelle logique de vérification
+    const isRecoverySession = this.isRecoverySession();
+
+    if (!isRecoverySession) {
+      console.log('Not a recovery session, showing error');
+      this.errorMessage = 'Cette page est réservée à la réinitialisation de mot de passe via email.';
+      this.isLinkExpired = true;
       return;
     }
+
+    // IMPORTANT: Avec Supabase, il faut traiter le hash URL pour récupérer la session
+    try {
+      console.log('Processing Supabase recovery session...');
+
+      // CORRECTION: Utilisez directement le retour de getSession()
+      const sessionResult = await this.authService.getSession();
+
+      if (sessionResult.error) {
+        console.error('Error getting session:', sessionResult.error);
+        this.errorMessage = 'Lien de réinitialisation invalide ou expiré. Veuillez redemander un nouveau lien.';
+        this.isLinkExpired = true;
+        return;
+      }
+
+      if (!sessionResult.session) {
+        console.error('No session found');
+        this.errorMessage = 'Session invalide. Veuillez redemander un lien de réinitialisation.';
+        this.isLinkExpired = true;
+        return;
+      }
+
+      console.log('Recovery session established successfully');
+
+    } catch (error) {
+      console.error('Error in recovery session setup:', error);
+      this.errorMessage = 'Erreur lors de la validation du lien de réinitialisation. Veuillez réessayer.';
+      this.isLinkExpired = true;
+    }
+  }
+
+  // NOUVELLE MÉTHODE : Vérification simplifiée de la session de récupération
+  private isRecoverySession(): boolean {
+    // La façon la plus simple : vérifier l'URL complète
+    const url = window.location.href;
+    console.log('Current URL:', url);
+
+    // Si on est sur la page update-password, c'est très probablement une tentative de récupération
+    const isRecovery = url.includes('update-password');
+
+    console.log('Is recovery session:', isRecovery);
+    return isRecovery;
   }
 
   toggleNewPasswordVisibility() {
@@ -94,6 +145,9 @@ export class ChangePasswordFormComponent implements OnInit {
       if (result.success) {
         this.successMessage = 'Mot de passe mis à jour avec succès ! Redirection...';
 
+        // Déconnexion après la mise à jour du mot de passe
+        await this.authManagement.logout();
+
         // Rediriger vers la page de connexion après un délai
         setTimeout(() => {
           this.router.navigate(['/login'], {
@@ -110,5 +164,14 @@ export class ChangePasswordFormComponent implements OnInit {
     } finally {
       this.isLoading = false;
     }
+  }
+
+  requestNewLink() {
+    this.router.navigate(['/reset-password']);
+  }
+
+  // Méthode pour contacter le support
+  contactSupport() {
+    window.location.href = 'mailto:support@digicoop.com?subject=Problème de réinitialisation de mot de passe';
   }
 }

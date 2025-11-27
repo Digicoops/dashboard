@@ -66,7 +66,7 @@ export class ResetPasswordFormComponent implements OnInit {
 
         // Redirection après délai
         setTimeout(() => {
-          this.router.navigate(['/send-link-password']);
+          this.router.navigate(['/reset-password-sent']);
         }, 1000);
       } else {
         this.errorMessage = result.error || 'Erreur lors de l\'envoi de l\'email de réinitialisation';

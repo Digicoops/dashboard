@@ -91,7 +91,6 @@ export class AuthService {
         return cachedData as User;
     }
 
-    /** SIGN UP / INSCRIPTION */
     /** SIGN UP / INSCRIPTION avec URL de redirection */
     async signUp(signUpData: SignUpData): Promise<{ user: User | null; error: AuthError | null }> {
         const { data: authData, error: authError } = await this.supabase.auth.signUp({
@@ -422,9 +421,33 @@ export class AuthService {
     }
 
     /** VÉRIFIER SI LA SESSION EST EN MODE RÉCUPÉRATION */
+
+// Dans AuthService, modifiez isRecoverySession()
+    /** VÉRIFIER SI LA SESSION EST EN MODE RÉCUPÉRATION */
+    // isRecoverySession(): boolean {
+    //     const hash = window.location.hash;
+    //     console.log('URL Hash:', hash);
+    //
+    //
+    //     // Vérifier si c'est une URL de récupération (même avec erreur)
+    //     const isRecoveryUrl = hash.includes('type=recovery') ||
+    //         hash.includes('access_token') ||
+    //         hash.includes('error_code=otp_expired');
+    //
+    //     console.log('Is recovery URL:', isRecoveryUrl);
+    //     return isRecoveryUrl;
+    // }
+
     isRecoverySession(): boolean {
-        // Vérifie si l'utilisateur est arrivé via un lien de récupération
-        return window.location.hash.includes('type=recovery');
+        // La façon la plus simple : vérifier l'URL complète
+        const url = window.location.href;
+        console.log('Current URL:', url);
+
+        // Si on est sur la page update-password, c'est très probablement une tentative de récupération
+        const isRecovery = url.includes('update-password');
+
+        console.log('Is recovery session:', isRecovery);
+        return isRecovery;
     }
 
 

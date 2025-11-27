@@ -35,6 +35,7 @@ import {SupportComponent} from "./pages/support/support.component";
 import {cooperativeGuard} from "./core/guard/cooperative.guard";
 import {ResetPasswordComponent} from "./pages/auth-pages/reset-password/reset-password.component";
 import {ChangePasswordComponent} from "./pages/auth-pages/change-password/change-password.component";
+import {SendLinkMessageComponent} from "./pages/auth-pages/send-link-password/send-link-message.component";
 
 export const routes: Routes = [
   {
@@ -206,6 +207,33 @@ export const routes: Routes = [
     path:'coming-soon',
     component:ComingSoonComponent,
     title:'Angular Sign Up Dashboard | Digicoop- Angular Admin Dashboard Template'
+  },
+
+  {
+    path: 'reset-password-sent',
+    component: SendLinkMessageComponent,
+    data: {
+      messageType: 'reset-password',
+      title: 'Email de réinitialisation envoyé'
+    }
+  },
+  // Page de compte créé
+  {
+    path: 'account-created',
+    component: SendLinkMessageComponent,
+    data: {
+      messageType: 'account-created',
+      title: 'Compte créé avec succès'
+    }
+  },
+  // Page de compte non activé
+  {
+    path: 'account-not-activated',
+    component: SendLinkMessageComponent,
+    data: {
+      messageType: 'account-not-activated',
+      title: 'Compte non activé'
+    }
   },
 
   // error pages

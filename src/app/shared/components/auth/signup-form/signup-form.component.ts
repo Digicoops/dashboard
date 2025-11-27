@@ -110,7 +110,7 @@ export class SignupFormComponent implements OnInit {
 
         // Rediriger après un délai
         setTimeout(() => {
-          this.router.navigate(['/login'], {
+          this.router.navigate(['/account-created'], {
             queryParams: { email: this.email }
           });
         }, 2000);

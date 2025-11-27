@@ -226,6 +226,7 @@ export class AuthManagementService {
     }
 
     /** VÉRIFIER LA SESSION DE RÉCUPÉRATION */
+    // Dans AuthManagementService
     isRecoverySession(): boolean {
         return this.authService.isRecoverySession();
     }
