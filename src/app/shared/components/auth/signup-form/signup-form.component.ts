@@ -9,6 +9,7 @@ import { Option, SelectComponent } from "../../form/select/select.component";
 import { PhoneInputComponent } from "../../form/group-input/phone-input/phone-input.component";
 import {AuthManagementService} from "../../../../core/services/auth/auth-managment.service";
 import {ButtonComponent} from "../../ui/button/button.component";
+import {PhoneFormatPipe} from "../../../../core/pipe/phone-format.pipe";
 
 @Component({
   selector: 'app-signup-form',
@@ -40,6 +41,7 @@ export class SignupFormComponent implements OnInit {
   email = '';
   password = '';
   phone = '';
+  displayPhone = ''; // Ajoutez cette variable pour l'affichage formaté
 
   @Input() options: Option[] = [
     { value: 'personal', label: 'Particulier' },
@@ -52,6 +54,7 @@ export class SignupFormComponent implements OnInit {
   constructor(
       private authManagement: AuthManagementService,
       private router: Router,
+      private phoneFormatPipe: PhoneFormatPipe // Injectez le pipe
   ) {}
 
   ngOnInit() {}
@@ -67,8 +70,44 @@ export class SignupFormComponent implements OnInit {
   }
 
   handlePhoneNumberChange(phoneNumber: string) {
-    // Format reçu: "77 660 61 06" - on le conserve tel quel
-    this.phone = phoneNumber;
+    // Format reçu depuis le composant phone-input
+    this.phone = phoneNumber.replace(/\s+/g, ''); // Enlever les espaces pour le stockage
+    this.displayPhone = phoneNumber; // Garder la version formatée pour l'affichage
+  }
+
+  // Nouvelle méthode pour formater le téléphone si besoin ailleurs
+  formatPhoneNumber(phone: string): string {
+    return this.phoneFormatPipe.transform(phone, 'SN');
+  }
+
+  // Méthode pour gérer le changement direct si vous avez un input séparé
+  onPhoneInput(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const rawValue = input.value;
+
+    // Nettoyer pour garder uniquement les chiffres
+    const cleanValue = rawValue.replace(/\D/g, '');
+
+    // Limiter à 9 chiffres pour le Sénégal
+    const limitedValue = cleanValue.slice(0, 9);
+
+    // Stocker la version non formatée
+    this.phone = limitedValue;
+
+    // Formater pour l'affichage
+    this.displayPhone = this.formatPhoneNumber(limitedValue);
+
+    // Mettre à jour la valeur de l'input
+    input.value = this.displayPhone;
+  }
+
+  // Méthode pour valider le format du téléphone
+  isValidPhoneFormat(): boolean {
+    if (!this.phone) return true; // Vide est valide (optionnel)
+
+    // Format Sénégal: 77xxxxxxx, 78xxxxxxx, 76xxxxxxx, 70xxxxxxx, 33xxxxxxx
+    const phoneRegex = /^(77|78|76|70|33)\d{7}$/;
+    return phoneRegex.test(this.phone.replace(/\s+/g, ''));
   }
 
   // Validation du formulaire
@@ -79,12 +118,17 @@ export class SignupFormComponent implements OnInit {
         !!this.shopName?.trim() &&
         !!this.password &&
         this.password.length >= 8 &&
-        this.isChecked;
+        this.isChecked &&
+        (!this.phone || this.isValidPhoneFormat()); // Téléphone optionnel mais doit être valide s'il est rempli
   }
 
   async onSubmit() {
     if (!this.isFormValid()) {
-      this.errorMessage = 'Veuillez remplir tous les champs obligatoires et accepter les conditions.';
+      if (this.phone && !this.isValidPhoneFormat()) {
+        this.errorMessage = 'Format de téléphone invalide. Utilisez un numéro sénégalais (ex: 77 660 61 06)';
+      } else {
+        this.errorMessage = 'Veuillez remplir tous les champs obligatoires et accepter les conditions.';
+      }
       return;
     }
 
@@ -99,7 +143,7 @@ export class SignupFormComponent implements OnInit {
       profile: this.selectedValue,
       email: this.email.trim(),
       password: this.password,
-      phone: this.phone // Format déjà "77 660 61 06"
+      phone: this.phone // Version sans espaces pour l'API
     };
 
     try {
@@ -145,7 +189,8 @@ export class SignupFormComponent implements OnInit {
       'Invalid email': 'Adresse email invalide.',
       'Weak password': 'Le mot de passe est trop faible.',
       'Email not confirmed': 'Email non confirmé.',
-      'Network error': 'Erreur de connexion. Vérifiez votre internet.'
+      'Network error': 'Erreur de connexion. Vérifiez votre internet.',
+      'Invalid phone number': 'Numéro de téléphone invalide.'
     };
 
     return errorMap[error || ''] || error || 'Erreur lors de l\'inscription.';

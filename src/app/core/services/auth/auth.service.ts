@@ -195,7 +195,8 @@ export class AuthService {
     async signInWithPhone(phone: string, password: string): Promise<{ session: Session | null; error: AuthServiceError | null }> {
         try {
             // Reconstituer le numéro avec le +221 pour la recherche
-            const fullPhone = `+221${phone}`;
+            // const fullPhone = `+221${phone}`;
+            const fullPhone = phone;
 
             console.log('Recherche du téléphone:', fullPhone);
 
