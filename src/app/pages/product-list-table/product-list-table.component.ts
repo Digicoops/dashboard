@@ -46,6 +46,8 @@ export class ProductListTableComponent implements OnInit {
 
   // Options pour les filtres
   categories = [
+    { value: 'service', label: 'Services' },
+    { value: 'tools', label: 'Equipements' },
     { value: 'fruits', label: 'Fruits' },
     { value: 'legumes', label: 'Légumes' },
     { value: 'cereales', label: 'Céréales' },
