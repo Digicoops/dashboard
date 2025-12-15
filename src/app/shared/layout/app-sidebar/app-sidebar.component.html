@@ -16,13 +16,13 @@
   (mouseleave)="sidebarService.setHovered(false)"
 >
   <div
-    class="py-8 flex"
+    class="py-2 flex"
     [ngClass]="{
       'xl:justify-center': !((isExpanded$ | async) || (isHovered$ | async)),
       'justify-start': (isExpanded$ | async) || (isHovered$ | async)
     }"
   >
-    <a routerLink="/">
+    <a >
       @if ((isExpanded$ | async) || (isHovered$ | async) || (isMobileOpen$ | async)) {
       <img
         class="dark:hidden"
