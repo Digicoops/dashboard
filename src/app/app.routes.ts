@@ -162,7 +162,6 @@ export const routes: Routes = [
         path:'list-producers',
         component:ListProducersComponent,
         title:'Tableau de bord DIGICOOP | Listes des producteurs',
-        canActivate: [cooperativeGuard],
       },
       {
         path:'view-product/:id',
