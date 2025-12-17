@@ -2,28 +2,29 @@
   <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
     <div>
       <h4 class="text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-6">
-        Address
+        Addresse
       </h4>
       <div class="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
         <div>
           <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-            Country
+            Pays
           </p>
           <p class="text-sm font-medium text-gray-800 dark:text-white/90">
-            {{ address.country }}
+<!--            {{ address.country }}-->
+            Sénégal
           </p>
         </div>
         <div>
           <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-            City/State
+            Ville/Region
           </p>
           <p class="text-sm font-medium text-gray-800 dark:text-white/90">
-            {{ address.cityState }}
+            {{ address.shop_adresse }}
           </p>
         </div>
         <div>
           <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-            Postal Code
+            Code Postal
           </p>
           <p class="text-sm font-medium text-gray-800 dark:text-white/90">
             {{ address.postalCode }}
@@ -31,7 +32,7 @@
         </div>
         <div>
           <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-            TAX ID
+            RRCM
           </p>
           <p class="text-sm font-medium text-gray-800 dark:text-white/90">
             {{ address.taxId }}
@@ -58,51 +59,105 @@
           fill=""
         />
       </svg>
-      Edit
+      Modifier
     </button>
   </div>
 
   <!-- Modal -->
+
+  <!-- Modal -->
   <app-modal
-    [isOpen]="isOpen"
-    (close)="closeModal()"
-    className="max-w-[700px] m-4"
+          [isOpen]="isOpen"
+          (close)="closeModal()"
+          className="max-w-[700px] m-4"
   >
     <div class="relative w-full p-4 overflow-y-auto bg-white no-scrollbar rounded-3xl dark:bg-gray-900 lg:p-11">
       <div class="px-2 pr-14">
         <h4 class="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
-          Edit Address
+          Modifier l'adresse de votre boutique
         </h4>
         <p class="mb-6 text-sm text-gray-500 dark:text-gray-400 lg:mb-7">
-          Update your details to keep your profile up-to-date.
+          Mettez à jour vos informations pour que votre profil reste à jour.
         </p>
       </div>
-      <form class="flex flex-col" (ngSubmit)="handleSave()">
+      <form class="flex flex-col" [formGroup]="addressForm" (ngSubmit)="handleSave()">
         <div class="px-2 overflow-y-auto custom-scrollbar">
           <div class="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
             <div>
-              <app-label>Country</app-label>
-              <app-input-field type="text" [value]="address.country" />
+              <app-label>Pays</app-label>
+              <!-- Utilisation de valueChange pour mettre à jour le formulaire -->
+              <app-input-field
+                      [disabled]="true"
+                      type="text"
+                      [value]="addressForm.get('country')?.value"
+                      (valueChange)="addressForm.get('country')?.setValue($event)"
+                      placeholder="Pays"
+              />
+              <div *ngIf="addressForm.get('country')?.invalid && addressForm.get('country')?.touched"
+                   class="text-red-500 text-sm mt-1">
+                Le pays est requis
+              </div>
             </div>
             <div>
               <app-label>City/State</app-label>
-              <app-input-field type="text" [value]="address.cityState" />
+              <app-input-field
+                      type="text"
+                      [value]="addressForm.get('shop_adresse')?.value"
+                      (valueChange)="addressForm.get('shop_adresse')?.setValue($event)"
+                      placeholder="Ville/État"
+              />
+              <div *ngIf="addressForm.get('shop_adresse')?.invalid && addressForm.get('shop_adresse')?.touched"
+                   class="text-red-500 text-sm mt-1">
+                La ville/état est requis
+              </div>
             </div>
             <div>
               <app-label>Postal Code</app-label>
-              <app-input-field type="text" [value]="address.postalCode" />
+              <app-input-field
+                      type="text"
+                      [value]="addressForm.get('postalCode')?.value"
+                      (valueChange)="addressForm.get('postalCode')?.setValue($event)"
+                      placeholder="Code postal"
+              />
             </div>
             <div>
               <app-label>TAX ID</app-label>
-              <app-input-field type="text" [value]="address.taxId" />
+              <app-input-field
+                      type="text"
+                      [value]="addressForm.get('taxId')?.value"
+                      (valueChange)="addressForm.get('taxId')?.setValue($event)"
+                      placeholder="Numéro fiscal"
+              />
             </div>
           </div>
         </div>
         <div class="flex items-center gap-3 px-2 mt-6 lg:justify-end">
-          <app-button size="sm" variant="outline" (btnClick)="closeModal()">Close</app-button>
-          <app-button size="sm" (btnClick)="handleSave()">Save Changes</app-button>
+          <app-button
+                  size="sm"
+                  variant="outline"
+                  type="button"
+                  (btnClick)="closeModal()"
+                  [disabled]="isLoading"
+          >
+            Annuler
+          </app-button>
+          <app-button
+                  (btnClick)="handleSave()"
+                  size="sm"
+                  type="submit"
+                  [disabled]="addressForm.invalid || isLoading"
+          >
+          <span *ngIf="isLoading">
+            <i class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></i>
+            Enregistrement...
+          </span>
+            <span *ngIf="!isLoading">Enregistrer</span>
+          </app-button>
         </div>
       </form>
     </div>
   </app-modal>
+
+
+
 </div>

@@ -1,0 +1,418 @@
+<!-- Modal principal d'importation -->
+<app-modal
+        [isOpen]="isOpen"
+        (close)="closeModal()"
+        className="max-w-3xl max-h-[90vh] m-4 overflow-scroll"
+>
+    <div class="relative w-full p-4 overflow-y-auto bg-white no-scrollbar rounded-3xl dark:bg-gray-900 lg:p-8">
+        <div class="px-2">
+            <div class="flex items-center justify-between mb-6">
+                <h4 class="text-2xl font-semibold text-gray-800 dark:text-white/90">
+                    Importer une liste de producteurs
+                </h4>
+                <button
+                        (click)="closeModal()"
+                        class="p-2 text-gray-400 transition-colors rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+                >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="space-y-6">
+                <!-- Zone de dépôt de fichier -->
+                <div
+                        class="border-2 border-dashed rounded-2xl"
+                        [class.border-success-300]="!isDragging && !selectedFile"
+                        [class.border-error-300]="hasError"
+                        [class.border-primary-300]="isDragging"
+                        [class.bg-success-50]="selectedFile"
+                        [class.bg-error-50]="hasError"
+                        [class.bg-gray-50]="!selectedFile && !hasError"
+                        [class.dark:bg-gray-800]="!selectedFile && !hasError"
+                        (drop)="onFileDrop($event)"
+                        (dragover)="onDragOver($event)"
+                        (dragleave)="onDragLeave($event)"
+                        id="dropZone"
+                >
+                    <div class="p-8 text-center">
+                        <div class="flex flex-col items-center justify-center gap-4">
+                            <!-- Icône -->
+                            <div class="p-4 rounded-full bg-success-100 dark:bg-success-900/30">
+                                <svg class="w-8 h-8 text-success-600 dark:text-success-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                                </svg>
+                            </div>
+
+                            <!-- Texte -->
+                            <div class="max-w-md">
+                                <h5 class="mb-2 text-lg font-medium text-gray-800 dark:text-white/90">
+                                    {{ selectedFile ? 'Fichier sélectionné' : 'Déposez votre fichier Excel ici' }}
+                                </h5>
+                                <p class="mb-4 text-sm text-gray-500 dark:text-gray-400">
+                                    {{ selectedFile
+                                    ? selectedFile.name
+                                    : 'Glissez-déposez votre fichier Excel (.xlsx, .xls) ou cliquez pour parcourir'
+                                    }}
+                                </p>
+                                <p class="text-xs text-gray-400 dark:text-gray-500">
+                                    Taille max : 10MB • Formats supportés : .xlsx, .xls
+                                </p>
+                            </div>
+
+                            <!-- Bouton Parcourir -->
+                            <div>
+                                <input
+                                        type="file"
+                                        #fileInput
+                                        (change)="onFileSelected($event)"
+                                        accept=".xlsx,.xls"
+                                        class="hidden"
+                                        [disabled]="isLoading"
+                                />
+                                <app-button
+                                        size="sm"
+                                        variant="outline"
+                                        (btnClick)="fileInput.click()"
+                                        [disabled]="isLoading"
+                                >
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                                    </svg>
+                                    {{ selectedFile ? 'Changer de fichier' : 'Parcourir les fichiers' }}
+                                </app-button>
+                            </div>
+
+                            <!-- Prévisualisation du fichier -->
+                            <div *ngIf="selectedFile" class="w-full max-w-md p-4 mt-4 bg-white rounded-lg shadow-sm dark:bg-gray-800">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-3">
+                                        <div class="p-2 rounded-lg bg-success-100 dark:bg-success-900/30">
+                                            <svg class="w-6 h-6 text-success-600 dark:text-success-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <p class="font-medium text-gray-800 dark:text-white/90">{{ selectedFile.name }}</p>
+                                            <p class="text-xs text-gray-500 dark:text-gray-400">
+                                                {{ (selectedFile.size / 1024 / 1024).toFixed(2) }} MB •
+                                                {{ selectedFile.type || 'Fichier Excel' }}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <button
+                                            (click)="removeFile()"
+                                            class="p-1 text-gray-400 transition-colors rounded hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-700 dark:hover:text-gray-300"
+                                            [disabled]="isLoading"
+                                    >
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Message d'erreur -->
+                            <div *ngIf="errorMessage" class="p-3 mt-4 text-sm text-red-800 bg-red-100 rounded-lg dark:bg-red-900 dark:text-red-200">
+                                {{ errorMessage }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Prévisualisation des données -->
+                <div *ngIf="showPreview && previewData.length > 0" class="w-full">
+                    <div class="p-4 bg-gray-50 rounded-lg dark:bg-gray-800">
+                        <div class="flex items-center justify-between mb-3">
+                            <h6 class="font-medium text-gray-800 dark:text-white/90">
+                                Aperçu des données ({{ previewData.length }} premières lignes)
+                            </h6>
+                            <span class="text-xs text-gray-500">
+                                Total lignes dans le fichier: {{ previewData.length }}
+                            </span>
+                        </div>
+
+                        <div class="overflow-x-auto border border-gray-200 rounded-lg dark:border-gray-700">
+                            <table class="min-w-full text-sm">
+                                <thead class="bg-gray-100 dark:bg-gray-700">
+                                <tr>
+                                    <th *ngFor="let key of getPreviewColumns()"
+                                        class="px-3 py-2 text-left border-r border-gray-200 dark:border-gray-600">
+                                        {{ key }}
+                                    </th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr *ngFor="let row of previewData; let i = index"
+                                    [class.bg-gray-50]="i % 2 === 0"
+                                    class="border-t border-gray-200 dark:border-gray-700">
+                                    <td *ngFor="let key of getPreviewColumns()"
+                                        class="px-3 py-2 border-r border-gray-200 dark:border-gray-600">
+                                        {{ row[key] || '-' }}
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                            * Seules les premières 5 lignes sont affichées pour l'aperçu
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Guide de format -->
+                <div class="p-5 rounded-2xl bg-gray-50 dark:bg-gray-800/50">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="p-2 rounded-lg bg-primary-100 dark:bg-primary-900/30">
+                                <svg class="w-5 h-5 text-primary-600 dark:text-primary-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <h5 class="text-lg font-medium text-gray-800 dark:text-white/90">
+                                Format de fichier requis
+                            </h5>
+                        </div>
+                        <a
+                                href="https://example.com/guide-format-excel"
+                                target="_blank"
+                                class="inline-flex items-center gap-1 text-sm text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
+                        >
+                            <span>Guide complet</span>
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
+                            </svg>
+                        </a>
+                    </div>
+
+<!--                    <div class="space-y-3">-->
+<!--                        <p class="text-sm text-gray-600 dark:text-gray-300">-->
+<!--                            Votre fichier Excel doit contenir les colonnes suivantes (l'en-tête doit être en première ligne) :-->
+<!--                        </p>-->
+
+<!--                        <div class="overflow-x-auto">-->
+<!--                            <table class="min-w-full text-sm text-left text-gray-500 dark:text-gray-400">-->
+<!--                                <thead class="text-xs uppercase bg-gray-100 dark:bg-gray-700">-->
+<!--                                <tr>-->
+<!--                                    <th class="px-4 py-3">Colonne</th>-->
+<!--                                    <th class="px-4 py-3">Description</th>-->
+<!--                                    <th class="px-4 py-3">Obligatoire</th>-->
+<!--                                    <th class="px-4 py-3">Exemple</th>-->
+<!--                                </tr>-->
+<!--                                </thead>-->
+<!--                                <tbody>-->
+<!--                                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">-->
+<!--                                    <td class="px-4 py-3 font-medium">first_name</td>-->
+<!--                                    <td class="px-4 py-3">Prénom du producteur</td>-->
+<!--                                    <td class="px-4 py-3"><span class="text-red-500">✓</span></td>-->
+<!--                                    <td class="px-4 py-3">Jean</td>-->
+<!--                                </tr>-->
+<!--                                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">-->
+<!--                                    <td class="px-4 py-3 font-medium">last_name</td>-->
+<!--                                    <td class="px-4 py-3">Nom du producteur</td>-->
+<!--                                    <td class="px-4 py-3"><span class="text-red-500">✓</span></td>-->
+<!--                                    <td class="px-4 py-3">Dupont</td>-->
+<!--                                </tr>-->
+<!--                                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">-->
+<!--                                    <td class="px-4 py-3 font-medium">email</td>-->
+<!--                                    <td class="px-4 py-3">Email professionnel</td>-->
+<!--                                    <td class="px-4 py-3"><span class="text-red-500">✓</span></td>-->
+<!--                                    <td class="px-4 py-3">jean.dupont@email.com</td>-->
+<!--                                </tr>-->
+<!--                                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">-->
+<!--                                    <td class="px-4 py-3 font-medium">phone</td>-->
+<!--                                    <td class="px-4 py-3">Téléphone</td>-->
+<!--                                    <td class="px-4 py-3"><span class="text-yellow-500">✗</span></td>-->
+<!--                                    <td class="px-4 py-3">+221 77 123 45 67</td>-->
+<!--                                </tr>-->
+<!--                                <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">-->
+<!--                                    <td class="px-4 py-3 font-medium">farm_name</td>-->
+<!--                                    <td class="px-4 py-3">Nom de l'exploitation</td>-->
+<!--                                    <td class="px-4 py-3"><span class="text-red-500">✓</span></td>-->
+<!--                                    <td class="px-4 py-3">Ferme du Soleil</td>-->
+<!--                                </tr>-->
+
+<!--                    <tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">-->
+<!--                        <td class="px-4 py-3 font-medium">production_type</td>-->
+<!--                        <td class="px-4 py-3">Type de production</td>-->
+<!--                        <td class="px-4 py-3"><span class="text-yellow-500">✗</span></td>-->
+<!--                        <td class="px-4 py-3">-->
+<!--                            <div class="space-y-1">-->
+<!--                                <div><span class="font-medium">Valeurs autorisées :</span></div>-->
+<!--                                <div class="text-xs">• Légumes (vegetables)</div>-->
+<!--                                <div class="text-xs">• Fruits (fruits)</div>-->
+<!--                                <div class="text-xs">• Céréales (cereals)</div>-->
+<!--                                <div class="text-xs">• Élevage (livestock)</div>-->
+<!--                                <div class="text-xs">• Produits laitiers (dairy)</div>-->
+<!--                                <div class="text-xs">• Volaille (poultry)</div>-->
+<!--                                <div class="text-xs">• Polyculture (mixed)</div>-->
+<!--                                <div class="text-xs">• Biologique (organic)</div>-->
+<!--                            </div>-->
+<!--                        </td>-->
+<!--                    </tr>-->
+<!--                                </tbody>-->
+<!--                            </table>-->
+<!--                        </div>-->
+
+<!--                        <div class="pt-3">-->
+<!--                            <a-->
+<!--                                    href="/assets/templates/producteurs_template.xlsx"-->
+<!--                                    download-->
+<!--                                    class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white transition-colors bg-primary-600 rounded-lg hover:bg-primary-700"-->
+<!--                            >-->
+<!--                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">-->
+<!--                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>-->
+<!--                                </svg>-->
+<!--                                Télécharger le modèle Excel-->
+<!--                            </a>-->
+<!--                        </div>-->
+<!--                    </div>-->
+
+
+                </div>
+
+                <!-- Boutons d'action -->
+                <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <app-button
+                            size="sm"
+                            variant="outline"
+                            (btnClick)="closeModal()"
+                            [disabled]="isLoading"
+                    >
+                        Annuler
+                    </app-button>
+                    <app-button
+                            size="sm"
+                            (btnClick)="onImport()"
+                            [disabled]="!selectedFile || isLoading"
+                    >
+                        <span *ngIf="isLoading" class="flex items-center gap-2">
+                            <svg class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                            </svg>
+                            Import en cours...
+                        </span>
+                        <span *ngIf="!isLoading" class="flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                            </svg>
+                            Importer les producteurs
+                        </span>
+                    </app-button>
+                </div>
+            </div>
+        </div>
+    </div>
+</app-modal>
+
+<!-- Modal de résultat d'importation -->
+<app-modal
+        [isOpen]="showResultModal"
+        (close)="closeResultModal()"
+        className="max-w-2xl max-h-[90vh] m-4"
+>
+    <div class="relative w-full p-4 overflow-y-auto bg-white no-scrollbar rounded-3xl dark:bg-gray-900 lg:p-8">
+        <div class="px-2">
+            <div class="flex items-center justify-between mb-6">
+                <h4 class="text-2xl font-semibold text-gray-800 dark:text-white/90">
+                    Résultat de l'importation
+                </h4>
+                <button
+                        (click)="closeResultModal()"
+                        class="p-2 text-gray-400 transition-colors rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-800 dark:hover:text-gray-300"
+                >
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="space-y-6">
+                <!-- Résumé -->
+                <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                    <div class="p-4 text-center bg-gray-50 rounded-2xl dark:bg-gray-800">
+                        <div class="text-3xl font-bold text-gray-800 dark:text-white">{{ importResult?.total || 0 }}</div>
+                        <div class="mt-1 text-sm text-gray-600 dark:text-gray-400">Producteurs traités</div>
+                    </div>
+                    <div class="p-4 text-center bg-success-50 rounded-2xl dark:bg-success-900/20">
+                        <div class="text-3xl font-bold text-success-700 dark:text-success-400">{{ importResult?.success || 0 }}</div>
+                        <div class="mt-1 text-sm text-success-600 dark:text-success-400">Créés avec succès</div>
+                    </div>
+                    <div class="p-4 text-center bg-error-50 rounded-2xl dark:bg-error-900/20">
+                        <div class="text-3xl font-bold text-error-700 dark:text-error-400">{{ importResult?.failed || 0 }}</div>
+                        <div class="mt-1 text-sm text-error-600 dark:text-error-400">Échecs</div>
+                    </div>
+                </div>
+
+                <!-- Détails des échecs -->
+                <div *ngIf="importResult?.failedDetails?.length" class="space-y-4">
+                    <h5 class="text-lg font-medium text-gray-800 dark:text-white/90">
+                        Détails des échecs
+                    </h5>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full text-sm">
+                            <thead>
+                            <tr class="bg-gray-100 dark:bg-gray-800">
+                                <th class="px-4 py-3 text-left">Ligne</th>
+                                <th class="px-4 py-3 text-left">Producteur</th>
+                                <th class="px-4 py-3 text-left">Erreur</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr *ngFor="let detail of importResult?.failedDetails" class="border-b dark:border-gray-700">
+                                <td class="px-4 py-3">{{ detail.row }}</td>
+                                <td class="px-4 py-3">
+                                    {{ detail.data.first_name }} {{ detail.data.last_name }}<br>
+                                    <span class="text-xs text-gray-500">{{ detail.data.email }}</span>
+                                </td>
+                                <td class="px-4 py-3">
+                                    <span class="text-error-600 dark:text-error-400">{{ detail.error }}</span>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Message de succès -->
+                <div *ngIf="importResult?.success" class="p-4 text-center bg-success-50 rounded-2xl dark:bg-success-900/20">
+                    <div class="flex items-center justify-center gap-3">
+                        <svg class="w-6 h-6 text-success-600 dark:text-success-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        <p class="text-lg font-medium text-success-800 dark:text-success-300">
+                            {{ importResult?.success }} producteur(s) créé(s) avec succès !
+                        </p>
+                    </div>
+                    <p class="mt-2 text-sm text-success-700 dark:text-success-400">
+                        Les producteurs recevront un email pour activer leur compte.
+                    </p>
+                </div>
+
+                <!-- Actions -->
+                <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <app-button
+                            size="sm"
+                            variant="outline"
+                            (btnClick)="closeResultModal(); closeModal();"
+                    >
+                        Fermer
+                    </app-button>
+                    <app-button
+                            size="sm"
+                            variant="primary"
+                            (btnClick)="navigateToProducersList()"
+                    >
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                        </svg>
+                        Voir les producteurs
+                    </app-button>
+                </div>
+            </div>
+        </div>
+    </div>
+</app-modal>

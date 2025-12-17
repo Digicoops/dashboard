@@ -13,6 +13,14 @@ export interface SignUpData {
     email: string;
     password: string;
     phone: string;
+
+    // Ajoutez ces champs pour les réseaux sociaux
+    social_facebook?: string;
+    social_x?: string;
+    social_linkedin?: string;
+    social_instagram?: string;
+    bio?: string;
+
 }
 
 export interface LoginData {
@@ -330,38 +338,141 @@ export class AuthService {
     }
 
     /** GET USER PROFILE FROM DATABASE */
-    async getUserProfile(userId: string): Promise<{ profile: any | null; error: PostgrestError | null }> {
-        const { data, error } = await this.supabase
-            .from('users')
-            .select('*')
-            .eq('id', userId)
-            .single();
+    // async getUserProfile(userId: string): Promise<{ profile: any | null; error: PostgrestError | null }> {
+    //     const { data, error } = await this.supabase
+    //         .from('users')
+    //         .select('*')
+    //         .eq('id', userId)
+    //         .single();
+    //
+    //     return { profile: data, error };
+    // }
 
-        return { profile: data, error };
+    async getUserProfile(userId: string): Promise<{ profile: any | null; error: any | null }> {
+        try {
+            // 1. Essayer de récupérer depuis public.users
+            const { data: dbData, error: dbError } = await this.supabase
+                .from('users')
+                .select('*')
+                .eq('id', userId)
+                .single();
+
+            if (!dbError && dbData) {
+                console.log('Profil trouvé dans public.users');
+                return { profile: dbData, error: null };
+            }
+
+            // 2. Fallback sur auth.users (votre code actuel)
+            console.log('Fallback sur auth.users, erreur:', dbError?.message);
+            const { data: authData, error: authError } = await this.supabase.auth.getUser();
+
+            if (authError || !authData.user) {
+                return { profile: null, error: authError };
+            }
+
+            const user = authData.user;
+            const profile = {
+                id: user.id,
+                email: user.email,
+                first_name: user.user_metadata?.['first_name'],
+                last_name: user.user_metadata?.['last_name'],
+                phone: user.user_metadata?.['phone'],
+                shop_name: user.user_metadata?.['shop_name'],
+                shop_adresse: user.user_metadata?.['shop_adresse'],
+                profile: user.user_metadata?.['profile'] || 'personal',
+                bio: user.user_metadata?.['bio'],
+                social_facebook: user.user_metadata?.['social_facebook'],
+                social_x: user.user_metadata?.['social_x'],
+                social_linkedin: user.user_metadata?.['social_linkedin'],
+                social_instagram: user.user_metadata?.['social_instagram'],
+                created_at: user.created_at,
+                updated_at: user.updated_at
+            };
+
+            return { profile, error: null };
+
+        } catch (error) {
+            console.error('Erreur getUserProfile:', error);
+            return { profile: null, error };
+        }
     }
 
     /** UPDATE USER PROFILE */
-    async updateUserProfile(userId: string, profileData: Partial<SignUpData>): Promise<{ success: boolean; error: PostgrestError | null }> {
-        const { error } = await this.supabase
-            .from('users')
-            .update(profileData)
-            .eq('id', userId);
+    // async updateUserProfile(userId: string, profileData: Partial<SignUpData>): Promise<{ success: boolean; error: PostgrestError | null }> {
+    //     const { error } = await this.supabase
+    //         .from('users')
+    //         .update(profileData)
+    //         .eq('id', userId);
+    //
+    //     if (error) {
+    //         return { success: false, error };
+    //     }
+    //
+    //     await this.supabase.auth.updateUser({
+    //         data: {
+    //             first_name: profileData.first_name,
+    //             last_name: profileData.last_name,
+    //             shop_name: profileData.shop_name,
+    //             shop_adresse: profileData.shop_adresse,
+    //             profile: profileData.profile
+    //         }
+    //     });
+    //
+    //     return { success: true, error: null };
+    // }
 
-        if (error) {
+    // Dans votre AuthService, remplacez SEULEMENT cette méthode :
+    async updateUserProfile(userId: string, profileData: any): Promise<{ success: boolean; error: any | null }> {
+        try {
+            console.log('Mise à jour du profil pour:', userId, profileData);
+
+            // 1. Mettre à jour public.users
+            const { error: dbError } = await this.supabase
+                .from('users')
+                .update({
+                    first_name: profileData.first_name,
+                    last_name: profileData.last_name,
+                    email: profileData.email,
+                    phone: profileData.phone,
+                    bio: profileData.bio,
+                    social_facebook: profileData.social_facebook,
+                    social_x: profileData.social_x,
+                    social_linkedin: profileData.social_linkedin,
+                    social_instagram: profileData.social_instagram,
+                    updated_at: new Date().toISOString()
+                })
+                .eq('id', userId);
+
+            if (dbError) {
+                console.error('Erreur public.users:', dbError);
+                // Si la table n'existe pas encore, continuer avec auth.users
+            }
+
+            // 2. Mettre à jour auth.users (user_metadata)
+            const { error: authError } = await this.supabase.auth.updateUser({
+                data: {
+                    first_name: profileData.first_name,
+                    last_name: profileData.last_name,
+                    phone: profileData.phone,
+                    bio: profileData.bio,
+                    social_facebook: profileData.social_facebook,
+                    social_x: profileData.social_x,
+                    social_linkedin: profileData.social_linkedin,
+                    social_instagram: profileData.social_instagram
+                }
+            });
+
+            if (authError) {
+                console.error('Erreur auth.updateUser:', authError);
+                return { success: false, error: authError };
+            }
+
+            return { success: true, error: null };
+
+        } catch (error) {
+            console.error('Erreur updateUserProfile:', error);
             return { success: false, error };
         }
-
-        await this.supabase.auth.updateUser({
-            data: {
-                first_name: profileData.first_name,
-                last_name: profileData.last_name,
-                shop_name: profileData.shop_name,
-                shop_adresse: profileData.shop_adresse,
-                profile: profileData.profile
-            }
-        });
-
-        return { success: true, error: null };
     }
 
     /** SIGN OUT / DÉCONNEXION */
@@ -455,6 +566,7 @@ export class AuthService {
         console.log('Is recovery session:', isRecovery);
         return isRecovery;
     }
+
 
 
 }

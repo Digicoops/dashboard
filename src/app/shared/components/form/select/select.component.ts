@@ -10,6 +10,7 @@ export interface Option {
   selector: 'app-select',
   imports:[CommonModule],
   templateUrl: './select.component.html',
+  standalone: true
 })
 export class SelectComponent implements OnInit {
   @Input() options: Option[] = [];

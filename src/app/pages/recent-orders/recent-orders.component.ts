@@ -7,6 +7,7 @@ import {TableHeaderComponent} from "../../shared/components/ui/table/table-heade
 import {TableRowComponent} from "../../shared/components/ui/table/table-row.component";
 import {BadgeComponent} from "../../shared/components/ui/badge/badge.component";
 import {PageBreadcrumbComponent} from "../../shared/components/common/page-breadcrumb/page-breadcrumb.component";
+import {RouterLink} from "@angular/router";
 
 interface Product {
   id: number;
@@ -29,8 +30,10 @@ interface Product {
     TableRowComponent,
     BadgeComponent,
     PageBreadcrumbComponent,
+      RouterLink
   ],
-  templateUrl: './recent-orders.component.html'
+  templateUrl: './recent-orders.component.html',
+  standalone: true
 })
 export class RecentOrdersComponent {
   tableData: Product[] = [

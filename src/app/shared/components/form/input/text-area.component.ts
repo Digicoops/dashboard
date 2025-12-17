@@ -24,7 +24,8 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
       }
     </div>
   `,
-  styles: ``
+  styles: ``,
+  standalone: true
 })
 export class TextAreaComponent {
 

@@ -7,11 +7,16 @@ import {
 import {NgIf} from "@angular/common";
 import {AuthService} from "../../../../core/services/auth/auth.service";
 import {ProductManagementService} from "../../../../core/services/products/product-management.service";
+import {DropdownComponent} from "../../ui/dropdown/dropdown.component";
+import {DropdownItemComponent} from "../../ui/dropdown/dropdown-item/dropdown-item.component";
+import {RouterLink} from "@angular/router";
 
 @Component({
   selector: 'app-ecommerce-metrics',
-  imports: [BadgeComponent, SafeHtmlPipe, NgIf],
-  templateUrl: './ecommerce-metrics.component.html'
+  imports: [BadgeComponent, SafeHtmlPipe, NgIf, DropdownComponent,
+    DropdownItemComponent, RouterLink,],
+  templateUrl: './ecommerce-metrics.component.html',
+  standalone: true
 })
 export class EcommerceMetricsComponent implements OnInit {
 
@@ -37,6 +42,8 @@ export class EcommerceMetricsComponent implements OnInit {
   userProfile: 'personal' | 'cooperative' | null = null;
   isCooperative = false;
   errorMessage = '';
+  isOpen = false;
+  isOpenClient = false;
 
   private authService = inject(AuthService);
   private producerManagement = inject(AgriculturalProducerManagementService);
@@ -118,6 +125,22 @@ export class EcommerceMetricsComponent implements OnInit {
       console.error('Erreur chargement utilisateur:', error);
       this.errorMessage = 'Erreur lors du chargement des données utilisateur';
     }
+  }
+
+  toggleDropdown() {
+    this.isOpen = !this.isOpen;
+  }
+
+  closeDropdown() {
+    this.isOpen = false;
+  }
+
+  toggleDropdownClient() {
+    this.isOpenClient = !this.isOpenClient;
+  }
+
+  closeDropdownClient() {
+    this.isOpenClient = false;
   }
 
 }

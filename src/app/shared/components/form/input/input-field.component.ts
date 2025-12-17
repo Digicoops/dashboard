@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, Input, Output, EventEmitter, forwardRef } from '@angular/core';
+import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 
 @Component({
   selector: 'app-input-field',
@@ -7,34 +8,42 @@ import { Component, Input, Output, EventEmitter } from '@angular/core';
   template: `
     <div class="relative">
       <input
-        [type]="type"
-        [id]="id"
-        [name]="name"
-        [placeholder]="placeholder"
-        [value]="value"
-        [min]="min"
-        [max]="max"
-        [step]="step"
-        [disabled]="disabled"
-        [ngClass]="inputClasses"
-        (input)="onInput($event)"
+          [type]="type"
+          [id]="id"
+          [name]="name"
+          [placeholder]="placeholder"
+          [value]="value"
+          [min]="min"
+          [max]="max"
+          [step]="step"
+          [disabled]="disabled"
+          [ngClass]="inputClasses"
+          (input)="onInput($event)"
+          (blur)="onBlur()"
       />
 
       @if (hint) {
       <p class="mt-1.5 text-xs"
         [ngClass]="{
-          'text-error-500': error,
-          'text-success-500': success,
-          'text-gray-500': !error && !success
-        }">
-        {{ hint }}
+      'text-error-500': error,
+      'text-success-500': success,
+      'text-gray-500': !error && !success
+      }">
+      {{ hint }}
       </p>
       }
     </div>
   `,
+  providers: [
+    {
+      provide: NG_VALUE_ACCESSOR,
+      useExisting: forwardRef(() => InputFieldComponent),
+      multi: true
+    }
+  ],
+  standalone: true
 })
-export class InputFieldComponent {
-
+export class InputFieldComponent implements ControlValueAccessor {
   @Input() type: string = 'text';
   @Input() id?: string = '';
   @Input() name?: string = '';
@@ -50,6 +59,26 @@ export class InputFieldComponent {
   @Input() className: string = '';
 
   @Output() valueChange = new EventEmitter<string | number>();
+
+  // Pour ControlValueAccessor
+  private onChange: any = () => {};
+  private onTouched: any = () => {};
+
+  writeValue(value: any): void {
+    this.value = value;
+  }
+
+  registerOnChange(fn: any): void {
+    this.onChange = fn;
+  }
+
+  registerOnTouched(fn: any): void {
+    this.onTouched = fn;
+  }
+
+  setDisabledState(isDisabled: boolean): void {
+    this.disabled = isDisabled;
+  }
 
   get inputClasses(): string {
     let inputClasses = `h-11 w-full rounded-lg border appearance-none px-4 py-2.5 text-sm shadow-theme-xs placeholder:text-gray-400 focus:outline-hidden focus:ring-3 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-white/30 ${this.className}`;
@@ -68,6 +97,14 @@ export class InputFieldComponent {
 
   onInput(event: Event) {
     const input = event.target as HTMLInputElement;
-    this.valueChange.emit(this.type === 'number' ? +input.value : input.value);
+    const value = this.type === 'number' ? +input.value : input.value;
+
+    this.value = value;
+    this.onChange(value);
+    this.valueChange.emit(value);
+  }
+
+  onBlur() {
+    this.onTouched();
   }
 }

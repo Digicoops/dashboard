@@ -16,6 +16,7 @@ export interface CountryCode {
   ],
   templateUrl: './phone-input.component.html',
   styles: ``,
+  standalone: true
 })
 export class PhoneInputComponent {
   @Input() countries: CountryCode[] = [];

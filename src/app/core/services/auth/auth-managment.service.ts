@@ -231,4 +231,20 @@ export class AuthManagementService {
         return this.authService.isRecoverySession();
     }
 
+    // Dans AuthManagementService
+    async updateUserMetadata(metadata: any): Promise<{ success: boolean; error?: string }> {
+        try {
+            const { user, error } = await this.authService.updateUserMetadata(metadata);
+
+            if (error) {
+                return { success: false, error: error.message };
+            }
+
+            return { success: true };
+        } catch (error) {
+            console.error('Erreur update metadata:', error);
+            return { success: false, error: 'Erreur lors de la mise à jour' };
+        }
+    }
+
 }

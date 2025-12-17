@@ -269,11 +269,11 @@ export class ListProducersComponent{
 
   // Action methods
   viewProducer(id: string) {
-    this.router.navigate(['/agricultural-producers', 'details', id]);
+    this.router.navigate(['/dashboard/list-producers', 'details', id]);
   }
 
   editProducer(id: string) {
-    this.router.navigate(['/agricultural-producers', 'edit', id]);
+    this.router.navigate(['/dashboard/list-producers', 'edit', id]);
   }
 
   async toggleProducerStatus(producer: Producer) {

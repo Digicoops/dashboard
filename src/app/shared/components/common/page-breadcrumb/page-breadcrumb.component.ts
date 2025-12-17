@@ -7,7 +7,8 @@ import { RouterModule } from '@angular/router';
     RouterModule,
   ],
   templateUrl: './page-breadcrumb.component.html',
-  styles: ``
+  styles: ``,
+  standalone: true
 })
 export class PageBreadcrumbComponent {
   @Input() pageTitle = '';

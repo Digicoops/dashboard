@@ -13,6 +13,7 @@ import { SafeHtmlPipe } from '../../../pipe/safe-html.pipe';
   host: {
 
   },
+  standalone: true
 })
 export class ButtonComponent {
 

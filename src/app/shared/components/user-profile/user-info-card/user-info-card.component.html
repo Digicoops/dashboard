@@ -2,12 +2,12 @@
   <div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:justify-between">
     <div>
       <h4 class="text-lg font-semibold text-gray-800 dark:text-white/90 lg:mb-6">
-        Personal Information
+        Information personel
       </h4>
       <div class="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:gap-7 2xl:gap-x-32">
         <div>
           <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-            First Name
+            Nom
           </p>
           <p class="text-sm font-medium text-gray-800 dark:text-white/90">
             {{ user.firstName }}
@@ -15,7 +15,7 @@
         </div>
         <div>
           <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-            Last Name
+            Prénom
           </p>
           <p class="text-sm font-medium text-gray-800 dark:text-white/90">
             {{ user.lastName }}
@@ -23,7 +23,7 @@
         </div>
         <div>
           <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-            Email address
+            Addresse email
           </p>
           <p class="text-sm font-medium text-gray-800 dark:text-white/90">
             {{ user.email }}
@@ -31,7 +31,7 @@
         </div>
         <div>
           <p class="mb-2 text-xs leading-normal text-gray-500 dark:text-gray-400">
-            Phone
+            Telephone
           </p>
           <p class="text-sm font-medium text-gray-800 dark:text-white/90">
             {{ user.phone }}
@@ -66,7 +66,7 @@
           fill=""
         />
       </svg>
-      Edit
+      Modifier
     </button>
   </div>
 
@@ -79,13 +79,13 @@
     <div class="no-scrollbar relative w-full max-w-[700px] overflow-y-auto rounded-3xl bg-white p-4 dark:bg-gray-900 lg:p-11">
       <div class="px-2 pr-14">
         <h4 class="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">
-          Edit Personal Information
+          Modifier vos Information personel
         </h4>
         <p class="mb-6 text-sm text-gray-500 dark:text-gray-400 lg:mb-7">
-          Update your details to keep your profile up-to-date.
+          Mettez à jour vos informations pour que votre profil reste à jour.
         </p>
       </div>
-      <form class="flex flex-col" (ngSubmit)="handleSave()">
+      <form class="flex flex-col" [formGroup]="userForm" (ngSubmit)="handleSave()">
         <div class="custom-scrollbar h-[450px] overflow-y-auto px-2 pb-3">
           <div>
             <h5 class="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">
@@ -94,53 +94,126 @@
             <div class="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
               <div>
                 <app-label>Facebook</app-label>
-                <app-input-field type="text" [value]="user.social.facebook" />
+                <app-input-field
+                        type="text"
+                        formControlName="social_facebook"
+                        placeholder="https://www.facebook.com/votre-profil"
+                />
               </div>
               <div>
                 <app-label>X.com</app-label>
-                <app-input-field type="text" [value]="user.social.x" />
+                <app-input-field
+                        type="text"
+                        formControlName="social_x"
+                        placeholder="https://x.com/votre-profil"
+                />
               </div>
               <div>
                 <app-label>Linkedin</app-label>
-                <app-input-field type="text" [value]="user.social.linkedin" />
+                <app-input-field
+                        type="text"
+                        formControlName="social_linkedin"
+                        placeholder="https://www.linkedin.com/in/votre-profil"
+                />
               </div>
               <div>
                 <app-label>Instagram</app-label>
-                <app-input-field type="text" [value]="user.social.instagram" />
+                <app-input-field
+                        type="text"
+                        formControlName="social_instagram"
+                        placeholder="https://instagram.com/votre-profil"
+                />
               </div>
             </div>
           </div>
           <div class="mt-7">
             <h5 class="mb-5 text-lg font-medium text-gray-800 dark:text-white/90 lg:mb-6">
-              Personal Information
+              Information personelle
             </h5>
             <div class="grid grid-cols-1 gap-x-6 gap-y-5 lg:grid-cols-2">
               <div class="col-span-2 lg:col-span-1">
-                <app-label>First Name</app-label>
-                <app-input-field type="text" [value]="user.firstName" />
+                <app-label>Nom</app-label>
+                <app-input-field
+                        type="text"
+                        formControlName="lastName"
+                        placeholder="Votre nom"
+                />
+                <div *ngIf="userForm.get('lastName')?.invalid && userForm.get('lastName')?.touched"
+                     class="text-red-500 text-sm mt-1">
+                  Le nom est requis
+                </div>
               </div>
               <div class="col-span-2 lg:col-span-1">
-                <app-label>Last Name</app-label>
-                <app-input-field type="text" [value]="user.lastName" />
+                <app-label>Prénom</app-label>
+                <app-input-field
+                        type="text"
+                        formControlName="firstName"
+                        placeholder="Votre prénom"
+                />
+                <div *ngIf="userForm.get('firstName')?.invalid && userForm.get('firstName')?.touched"
+                     class="text-red-500 text-sm mt-1">
+                  Le prénom est requis
+                </div>
               </div>
               <div class="col-span-2 lg:col-span-1">
-                <app-label>Email Address</app-label>
-                <app-input-field type="text" [value]="user.email" />
+                <app-label>Addresse email</app-label>
+                <app-input-field
+                        type="email"
+                        formControlName="email"
+                        placeholder="votre@email.com"
+                />
+                <div *ngIf="userForm.get('email')?.invalid && userForm.get('email')?.touched"
+                     class="text-red-500 text-sm mt-1">
+                  <span *ngIf="userForm.get('email')?.errors?.['required']">L'email est requis</span>
+                  <span *ngIf="userForm.get('email')?.errors?.['email']">Email invalide</span>
+                </div>
               </div>
               <div class="col-span-2 lg:col-span-1">
-                <app-label>Phone</app-label>
-                <app-input-field type="text" [value]="user.phone" />
+                <app-label>Telephone</app-label>
+                <app-input-field
+                        [disabled]="true"
+                        type="text"
+                        formControlName="phone"
+                        placeholder="Votre numéro de téléphone"
+                />
+                <div *ngIf="userForm.get('phone')?.invalid && userForm.get('phone')?.touched"
+                     class="text-red-500 text-sm mt-1">
+                  Le téléphone est requis
+                </div>
               </div>
               <div class="col-span-2">
                 <app-label>Bio</app-label>
-                <app-input-field type="text" [value]="user.bio" />
+                <app-input-field
+                        type="text"
+                        formControlName="bio"
+                        placeholder="Une brève description de vous"
+                />
               </div>
             </div>
           </div>
         </div>
         <div class="flex items-center gap-3 px-2 mt-6 lg:justify-end">
-          <app-button size="sm" variant="outline" (btnClick)="closeModal()">Close</app-button>
-          <app-button size="sm" (btnClick)="handleSave()">Save Changes</app-button>
+          <app-button
+                  size="sm"
+                  variant="outline"
+                  type="button"
+                  (btnClick)="closeModal()"
+                  [disabled]="isLoading"
+          >
+            Annuler
+          </app-button>
+          <app-button
+                  size="sm"
+                  type="submit"
+                  (btnClick)="handleSave()"
+                  [disabled]="userForm.invalid || isLoading"
+          >
+      <span *ngIf="isLoading">
+        <i class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></i>
+        Enregistrement...
+      </span>
+            <span *ngIf="!isLoading">Enregistrer</span>
+          </app-button>
         </div>
       </form>
     </div>

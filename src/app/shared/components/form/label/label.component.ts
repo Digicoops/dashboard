@@ -5,7 +5,8 @@ import { Component,Input } from '@angular/core';
   selector: 'app-label',
   imports: [CommonModule],
   templateUrl: './label.component.html',
-  styles: ``
+  styles: ``,
+  standalone: true
 })
 export class LabelComponent {
   @Input() for?: string;

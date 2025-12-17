@@ -16,7 +16,8 @@ import {
     CommonModule,
   ],
   templateUrl: './modal.component.html',
-  styles: ``
+  styles: ``,
+  standalone: true
 })
 export class ModalComponent {
 

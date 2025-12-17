@@ -4,6 +4,17 @@ import { Router } from '@angular/router';
 import { AuthService } from "../auth/auth.service";
 import { AgriculturalProducerService, AgriculturalProducerData } from './agricultural-producer.service';
 
+export interface ImportResult {
+    total: number;
+    success: number;
+    failed: number;
+    failedDetails: Array<{
+        row: number;
+        data: any;
+        error: string;
+    }>;
+}
+
 @Injectable({
     providedIn: 'root'
 })
@@ -351,9 +362,9 @@ export class AgriculturalProducerManagementService {
      */
     navigateAfterSuccess(producerId?: string): void {
         if (producerId) {
-            this.router.navigate(['/agricultural-producers', 'details', producerId]);
+            this.router.navigate(['/dashboard/list-producers', 'details', producerId]);
         } else {
-            this.router.navigate(['/agricultural-producers']);
+            this.router.navigate(['/dashboard/list-producers']);
         }
     }
 
@@ -361,14 +372,14 @@ export class AgriculturalProducerManagementService {
      * Rediriger vers la liste des producteurs
      */
     navigateToProducersList(): void {
-        this.router.navigate(['/agricultural-producers']);
+        this.router.navigate(['/dashboard/list-producers']);
     }
 
     /**
      * Rediriger vers l'édition d'un producteur
      */
     navigateToEditProducer(producerId: string): void {
-        this.router.navigate(['/agricultural-producers', 'edit', producerId]);
+        this.router.navigate(['/dashboard/list-producers', 'edit', producerId]);
     }
 
 
@@ -469,5 +480,86 @@ export class AgriculturalProducerManagementService {
         const hasLetter = /[a-zA-Z]/.test(password);
         const hasNumber = /[0-9]/.test(password);
         return hasLetter && hasNumber;
+    }
+
+    // Dans AgriculturalProducerManagementService
+    async importProducersFromExcel(data: any[]): Promise<ImportResult> {
+        const result: ImportResult = {
+            total: data.length,
+            success: 0,
+            failed: 0,
+            failedDetails: []
+        };
+
+        // Créer les producteurs en parallèle (max 5 à la fois)
+        const batchSize = 5;
+
+        for (let i = 0; i < data.length; i += batchSize) {
+            const batch = data.slice(i, i + batchSize);
+            const promises = batch.map(async (row, index) => {
+                const rowNumber = i + index + 2;
+
+                try {
+                    const producerData = {
+                        first_name: row.first_name?.trim(),
+                        last_name: row.last_name?.trim(),
+                        email: row.email?.trim(),
+                        phone: row.phone?.trim() || '',
+                        farm_name: row.farm_name?.trim(),
+                        location: row.location?.trim() || '',
+                        production_type: row.production_type?.trim() || 'mixed',
+                        description: row.description?.trim() || '',
+                        password: this.generateRandomPassword(),
+                        account_status: 'active'
+                    };
+
+                    const createResult = await this.createProducer(producerData);
+
+                    if (createResult.success) {
+                        result.success++;
+                    } else {
+                        result.failed++;
+                        result.failedDetails.push({
+                            row: rowNumber,
+                            data: producerData,
+                            error: createResult.error || 'Erreur inconnue'
+                        });
+                    }
+                } catch (error: any) {
+                    result.failed++;
+                    result.failedDetails.push({
+                        row: rowNumber,
+                        data: row,
+                        error: error.message || 'Erreur lors de la création'
+                    });
+                }
+            });
+
+            await Promise.all(promises);
+        }
+
+        return result;
+    }
+
+    private generateRandomPassword(): string {
+        const uppercase = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+        const lowercase = 'abcdefghijklmnopqrstuvwxyz';
+        const digits = '0123456789';
+        const allChars = uppercase + lowercase + digits;
+
+        let password = '';
+
+        // Ajouter des caractères requis
+        password += uppercase.charAt(Math.floor(Math.random() * uppercase.length));
+        password += lowercase.charAt(Math.floor(Math.random() * lowercase.length));
+        password += digits.charAt(Math.floor(Math.random() * digits.length));
+
+        // Ajouter 9 caractères aléatoires supplémentaires (total 12)
+        for (let i = 0; i < 9; i++) {
+            password += allChars.charAt(Math.floor(Math.random() * allChars.length));
+        }
+
+        // Mélanger pour éviter un motif prévisible
+        return password.split('').sort(() => Math.random() - 0.5).join('');
     }
 }
